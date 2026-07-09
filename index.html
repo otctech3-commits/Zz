@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MK MANGA - Read Manga Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0a;
+  --card:#111;
+  --accent:#00e676;
+  --text:#ffffff;
+  --muted:#888888;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Poppins',sans-serif;overflow-x:hidden;}
+
+/* HEADER */
+header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,10,0.95);backdrop-filter:blur(10px);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid #1a1a1a;
+}
+.logo{font-size:20px;font-weight:900;color:var(--accent);}
+.search-box{flex:1;margin:0 12px;}
+.search-box input{
+  width:100%;background:#1a1a1a;border:none;padding:10px 14px;border-radius:20px;
+  color:#fff;font-size:14px;outline:none;
+}
+
+/* BLOG HERO CARD */
+.hero{
+  margin:16px;border-radius:16px;overflow:hidden;position:relative;height:220px;
+  background-size:cover;background-position:center;
+}
+.hero::after{
+  content:'';position:absolute;bottom:0;left:0;width:100%;height:80%;
+  background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
+}
+.hero-content{position:absolute;bottom:16px;left:16px;right:16px;z-index:2;}
+.hero-content h2{font-size:18px;font-weight:700;margin-bottom:6px;line-height:1.3;}
+.hero-content p{font-size:12px;color:#ccc;margin-bottom:10px;}
+.read-now{
+  background:var(--accent);color:#000;border:none;padding:10px 20px;border-radius:10px;
+  font-weight:700;font-size:14px;width:100%;
+}
+
+/* MANGA LIST - BLOG STYLE */
+.container{padding:16px;padding-bottom:70px;}
+.section-title{font-size:18px;font-weight:700;margin:20px 0 12px;display:flex;align-items:center;gap:8px;}
+.manga-list{display:flex;flex-direction:column;gap:12px;}
+.manga-item{
+  display:flex;gap:12px;background:var(--card);padding:10px;border-radius:12px;cursor:pointer;
+}
+.manga-item img{width:80px;height:110px;border-radius:8px;object-fit:cover;}
+.manga-info{flex:1;}
+.manga-info h4{font-size:14px;font-weight:600;margin-bottom:4px;line-height:1.3;}
+.manga-meta{font-size:12px;color:var(--muted);margin-bottom:6px;}
+.chap-badge{background:#1a1a1a;padding:4px 8px;border-radius:6px;font-size:11px;display:inline-block;}
+
+/* DETAIL PAGE */
+.detail-cover{height:300px;background-size:cover;background-position:center;position:relative;}
+.detail-cover::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:100%;background:linear-gradient(to top,#0a0a0a,transparent);}
+.detail-body{padding:16px;margin-top:-40px;position:relative;}
+.detail-title{font-size:22px;font-weight:700;margin-bottom:8px;}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0;}
+.tag{background:#1a1a1a;padding:6px 10px;border-radius:16px;font-size:12px;}
+.desc{font-size:14px;line-height:1.7;color:#ccc;margin:16px 0;}
+.chapter-item{
+  background:var(--card);padding:14px;border-radius:10px;margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+}
+.chapter-item:active{background:#1a1a1a;}
+
+/* READER - MOBILE PERFECT */
+.reader{display:none;background:#000;min-height:100vh;}
+.reader-header{
+  position:sticky;top:0;z-index:10;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);
+  padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+}
+.reader-header button{background:none;border:none;color:#fff;font-size:16px;}
+.reader-pages img{width:100%;display:block;margin:0 auto;}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;width:100%;background:#0f0f0f;border-top:1px solid #1a1a1a;
+  display:flex;justify-content:space-around;padding:10px 0;z-index:100;
+}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--muted);}
+.nav-btn.active{color:var(--accent);}
+.loading{text-align:center;padding:30px;color:var(--muted);}
+.page{display:none;}.page.active{display:block;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MK MANGA</div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search manga..." onkeyup="if(event.key==='Enter') searchManga()">
+  </div>
+</header>
+
+<!-- PAGE 1: HOME / BLOG -->
+<div class="page active" id="home">
+  <div id="heroSection"></div>
+  
+  <div class="container">
+    <h3 class="section-title">🔥 Latest Updates</h3>
+    <div class="manga-list" id="latestList"><div class="loading">Loading...</div></div>
+
+    <h3 class="section-title">⭐ Popular</h3>
+    <div class="manga-list" id="popularList"><div class="loading">Loading...</div></div>
+  </div>
+</div>
+
+<!-- PAGE 2: DETAIL -->
+<div class="page" id="detail">
+  <div class="detail-cover" id="detailCover"></div>
+  <div class="detail-body">
+    <button onclick="goHome()" style="background:none;border:none;color:#fff;font-size:16px;margin-bottom:10px;">← Back</button>
+    <h2 class="detail-title" id="detailTitle"></h2>
+    <div class="tags" id="detailTags"></div>
+    <p class="desc" id="detailDesc"></p>
+    
+    <h3 class="section-title">📖 Chapters</h3>
+    <div id="chapterList"></div>
+  </div>
+</div>
+
+<!-- PAGE 3: READER -->
+<div class="page" id="reader">
+  <div class="reader-header">
+    <button onclick="goDetail()">←</button>
+    <span id="readerTitle" style="font-size:14px;font-weight:600;"></span>
+    <button onclick="scrollTop()">↑</button>
+  </div>
+  <div class="reader-pages" id="readerPages"></div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-btn active" onclick="goHome()">🏠<span>Home</span></div>
+  <div class="nav-btn">🔥<span>Trending</span></div>
+  <div class="nav-btn">❤️<span>Bookmark</span></div>
+  <div class="nav-btn">👤<span>Profile</span></div>
+</nav>
+
+<script>
+const API = "https://mangamint.1bestapi.net/api";
+let currentManga = null;
+
+// LOAD HOME
+async function loadHome(){
+  // Hero - First latest manga
+  let res1 = await fetch(`${API}/manga/page/1`);
+  let data1 = await res1.json();
+  let hero = data1.data[0];
+  document.getElementById('heroSection').innerHTML = `
+    <div class="hero" style="background-image:url(${hero.thumb})">
+      <div class="hero-content">
+        <h2>${hero.title}</h2>
+        <p>Chapter ${hero.chapter} • Latest Update</p>
+        <button class="read-now" onclick="openDetail('${hero.endpoint}')">▶ Read Now</button>
+      </div>
+    </div>
+  `;
+
+  // Latest List
+  let html1 = '';
+  data1.data.slice(1,11).forEach(m=>{
+    html1 += `
+    <div class="manga-item" onclick="openDetail('${m.endpoint}')">
+      <img src="${m.thumb}">
+      <div class="manga-info">
+        <h4>${m.title}</h4>
+        <div class="manga-meta">${m.type}</div>
+        <span class="chap-badge">Ch ${m.chapter}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('latestList').innerHTML = html1;
+
+  // Popular List
+  let res2 = await fetch(`${API}/manga/popular/1`);
+  let data2 = await res2.json();
+  let html2 = '';
+  data2.data.slice(0,10).forEach(m=>{
+    html2 += `
+    <div class="manga-item" onclick="openDetail('${m.endpoint}')">
+      <img src="${m.thumb}">
+      <div class="manga-info">
+        <h4>${m.title}</h4>
+        <div class="manga-meta">Popular</div>
+        <span class="chap-badge">Ch ${m.chapter}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('popularList').innerHTML = html2;
+}
+
+// DETAIL
+async function openDetail(endpoint){
+  let res = await fetch(`${API}/manga/detail/${endpoint}`);
+  let data = await res.json();
+  let m = data.data;
+  currentManga = m;
+  
+  document.getElementById('detailCover').style.backgroundImage = `url(${m.thumb})`;
+  document.getElementById('detailTitle').innerText = m.title;
+  document.getElementById('detailDesc').innerText = m.synopsis;
+  
+  let tags = m.genre_list.map(g=>`<span class="tag">${g.genre_name}</span>`).join('');
+  document.getElementById('detailTags').innerHTML = tags;
+  
+  let chapHtml = '';
+  m.chapter_list.reverse().forEach(c=>{
+    chapHtml += `
+    <div class="chapter-item" onclick="openReader('${c.endpoint}','${c.name}')">
+      <span>${c.name}</span>
+      <span style="color:var(--muted);font-size:12px;">${c.date}</span>
+    </div>`;
+  });
+  document.getElementById('chapterList').innerHTML = chapHtml;
+  showPage('detail');
+}
+
+// READER
+async function openReader(chapEndpoint, chapName){
+  document.getElementById('readerPages').innerHTML = '<div class="loading">Loading pages...</div>';
+  document.getElementById('readerTitle').innerText = chapName;
+  showPage('reader');
+  
+  let res = await fetch(`${API}/chapter/${chapEndpoint}`);
+  let data = await res.json();
+  
+  let html = '';
+  data.data.chapter_image.forEach(img=>{
+    html += `<img src="${img.image}" loading="lazy">`;
+  });
+  document.getElementById('readerPages').innerHTML = html;
+}
+
+// SEARCH
+async function searchManga(){
+  let q = document.getElementById('searchInput').value;
+  if(!q) return;
+  let res = await fetch(`${API}/search/${q}`);
+  let data = await res.json();
+  let html = '';
+  data.data.forEach(m=>{
+    html += `
+    <div class="manga-item" onclick="openDetail('${m.endpoint}')">
+      <img src="${m.thumb}">
+      <div class="manga-info">
+        <h4>${m.title}</h4>
+        <span class="chap-badge">Ch ${m.chapter}</span>
+      </div>
+    </div>`;
+  });
+  document.getElementById('latestList').innerHTML = html;
+  document.querySelector('.section-title').innerText = `🔍 Results for "${q}"`;
+}
+
+// UTILS
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function goHome(){showPage('home');}
+function goDetail(){showPage('detail');}
+function scrollTop(){window.scrollTo(0,0);}
+
+loadHome();
+</script>
+</body>
+</html>
